@@ -1,0 +1,194 @@
+# When updating assembly info, tells GitVersion how to treat the AssemblyVersion attribute.
+# Valid values: MajorMinorPatchTag, MajorMinorPatch, MajorMinor, Major, None.
+assembly-versioning-scheme: MajorMinorPatchTag
+
+# When updating assembly info, tells GitVersion how to treat the AssemblyFileVersion attribute.
+# Valid values: MajorMinorPatchTag, MajorMinorPatch, MajorMinor, Major, None.
+assembly-file-versioning-scheme: MajorMinorPatchTag
+
+# A regular expression which is used to trim Git tags before processing.
+tag-prefix: '[vV]?'
+
+# A regular expression which is used to determine the version number in the branch name or commit message.
+# This setting only applies on branches where the option is-release-branch is set to true.
+version-in-branch-pattern: (?<version>[vV]?\d+(\.\d+)?(\.\d+)?).*
+
+# The regex to match commit messages with to perform a major version increment.
+major-version-bump-message: \+semver:\s?(breaking|major)
+
+# The regex to match commit messages with to perform a minor version increment.
+minor-version-bump-message: \+semver:\s?(feature|minor)
+
+# The regex to match commit messages with to perform a patch version increment.
+patch-version-bump-message: \+semver:\s?(fix|patch)
+
+# Used to tell GitVersion not to increment when in Mainline development mode.
+no-bump-message: \+semver:\s?(none|skip)
+
+# The pre-release weight in case of tagged commits.
+tag-pre-release-weight: 60000
+
+# Sets the format which will be used to format the CommitDate output variable.
+commit-date-format: yyyy-MM-dd
+
+# Custom merge message formats to enable identification of merge messages that do not follow the built-in conventions.
+# Entries should be added as key-value pairs where the value is a regular expression.
+# The regular expression should contain the following capture groups:
+# - SourceBranch - Identifies the source branch of the merge
+# - TargetBranch - Identifies the target branch of the merge
+# - PullRequestNumber - Captures the pull-request number
+merge-message-formats: {}
+
+# Configures GitVersion to update the build number or not when running on a build server.
+update-build-number: true
+
+# Specifies the semantic version format that is used when parsing the string.
+semantic-version-format: Strict
+
+# Specifies which version strategy implementation (one or more) will be used to determine the next version.
+# These strategies can be combined, and the order in which they are specified does not matter.
+strategies:
+- Fallback
+- ConfiguredNextVersion
+- MergeMessage
+- TaggedCommit
+- TrackReleaseBranches
+- VersionInBranchName
+
+
+branches:
+  main:
+    label: alpha
+    increment: Minor
+    prevent-increment:
+      # Configures whether to ignore the increment of the branch merged to.
+      of-merged-branch: true
+    track-merge-target: false
+    track-merge-message: true
+    regex: ^master$|^main$
+    source-branches: []
+    is-source-branch-for: []
+    tracks-release-branches: false
+    is-release-branch: false
+    is-main-branch: true
+    pre-release-weight: 55000
+  release:
+    label: beta
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: true
+      when-branch-merged: false
+      when-current-commit-tagged: false
+    track-merge-target: false
+    track-merge-message: true
+    regex: ^releases?[/-](?<BranchName>.+)
+    source-branches:
+    - main
+    is-source-branch-for: []
+    tracks-release-branches: false
+    is-release-branch: true
+    is-main-branch: false
+    pre-release-weight: 30000
+  feature:
+    mode: ManualDeployment
+    label: '{WorkItemNumber}'
+    increment: Inherit
+    prevent-increment:
+      when-current-commit-tagged: false
+    track-merge-message: true
+    regex: ^feature?[/-]WI0*(?<WorkItemNumber>\d+)
+    source-branches:
+    - main
+    - release
+    is-source-branch-for: []
+    is-main-branch: false
+    pre-release-weight: 30000
+  pull-request:
+    mode: ContinuousDelivery
+    label: PullRequest
+    increment: Inherit
+    prevent-increment:
+      of-merged-branch: true
+      when-current-commit-tagged: false
+    label-number-pattern: '[/-](?<number>\d+)'
+    track-merge-message: true
+    regex: ^(pull|pull\-requests|pr)[/-]
+    source-branches:
+    - main
+    - release
+    - feature
+    is-source-branch-for: []
+    pre-release-weight: 30000
+  unknown:
+    mode: ManualDeployment
+    label: '{BranchName}'
+    increment: Inherit
+    prevent-increment:
+      when-current-commit-tagged: false
+    track-merge-message: false
+    regex: (?<BranchName>.+)
+    source-branches:
+    - main
+    - release
+    - feature
+    - pull-request
+    is-source-branch-for: []
+    is-main-branch: false
+
+
+ignore:
+  # A sequence of SHAs to be excluded from the version calculations.
+  sha: []
+
+# Sets the mode of how GitVersion should create a new version.
+mode: ContinuousDelivery
+
+# The pre-release label to use for this branch.
+# Use the value {BranchName} as a placeholder to insert the value of the named group BranchName from the regular expression.
+label: '{BranchName}'
+
+# The part of the SemVer to increment when GitVersion detects it needs to be increased.
+# The special value Inherit means that GitVersion should find the parent branch and use its values for increment.
+increment: Inherit
+
+
+prevent-increment:
+  # Configures whether to ignore the increment of the branch merged to.
+  of-merged-branch: false
+
+  # Configures whether to ignore the increment of the merged branch.
+  when-branch-merged: false
+
+  # Configures whether to use the tagged (value set to true) or the incremented (value set to false) semantic version.
+  when-current-commit-tagged: true
+
+# Strategy which will look for tagged merge commits directly off the current branch.
+track-merge-target: false
+
+# Configures whether the merge commit message should be interpreted as a next version or not.
+track-merge-message: true
+
+# Sets whether it should be possible to increment the version with special syntax in the commit message.
+# See *-version-bump-message options for details on the syntax.
+# Default set to Enabled; set to Disabled to disable.
+commit-message-incrementing: Enabled
+
+# This is the regex which is used to match the current branch to the correct branch configuration.
+# Named groups can be used to dynamically label pre-releases based on the branch name, or parts of it.
+regex: ''
+
+# Because Git commits only refer to parent commits (not branches) GitVersion sometimes cannot tell which branch the current branch was branched from.
+# Hints GitVersion by telling it what types of branches a branch can be created from.
+source-branches: []
+
+# Reverse configuration for source-branches option.
+is-source-branch-for: []
+
+# Indicates this branch config represents develop in GitFlow.
+tracks-release-branches: false
+
+# Indicates this branch config represents a release branch in GitFlow.
+is-release-branch: false
+
+# This indicates that this branch is a main branch.
+is-main-branch: false
