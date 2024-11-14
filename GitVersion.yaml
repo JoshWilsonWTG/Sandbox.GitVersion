@@ -1,10 +1,8 @@
-# When updating assembly info, tells GitVersion how to treat the AssemblyVersion attribute.
-# Valid values: MajorMinorPatchTag, MajorMinorPatch, MajorMinor, Major, None.
-assembly-versioning-scheme: MajorMinorPatchTag
+# Specifies the format of AssemblyVersion and overwrites the value of assembly-versioning-scheme.
+assembly-versioning-format: "{Major}.{Minor}.{Patch}.{WeightedPreReleaseNumber}"
 
-# When updating assembly info, tells GitVersion how to treat the AssemblyFileVersion attribute.
-# Valid values: MajorMinorPatchTag, MajorMinorPatch, MajorMinor, Major, None.
-assembly-file-versioning-scheme: MajorMinorPatchTag
+#Specifies the format of AssemblyFileVersion and overwrites the value of assembly-file-versioning-scheme.
+assembly-file-versioning-format: "{Major}.{Minor}.{Patch}.{WeightedPreReleaseNumber}"
 
 # A regular expression which is used to trim Git tags before processing.
 tag-prefix: '[vV]?'
@@ -73,6 +71,7 @@ branches:
     is-main-branch: true
     pre-release-weight: 55000
   release:
+    mode: ContinuousDelivery
     label: beta
     increment: Patch
     prevent-increment:
@@ -90,6 +89,7 @@ branches:
     is-main-branch: false
     pre-release-weight: 30000
   feature:
+    mode: ContinuousDelivery
     label: '{WorkItemNumber}'
     increment: Inherit
     prevent-increment:
