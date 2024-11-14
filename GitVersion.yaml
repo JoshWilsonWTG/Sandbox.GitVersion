@@ -90,7 +90,6 @@ branches:
     is-main-branch: false
     pre-release-weight: 30000
   feature:
-    mode: ManualDeployment
     label: '{WorkItemNumber}'
     increment: Inherit
     prevent-increment:
